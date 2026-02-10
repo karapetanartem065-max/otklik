@@ -3,107 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ОТКЛИК</title>
     <script src="https://telegram.org"></script>
-    <style>
-        * { box-sizing: border-box; }
-        body, html { margin: 0; padding: 0; background: #000; color: #f00; font-family: 'Courier New', monospace; height: 100vh; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
-        #log-screen { font-size: 11px; text-align: left; width: 85%; height: 150px; overflow: hidden; color: #0f0; margin-bottom: 20px; display: none; border: 1px solid #030; padding: 10px; }
-        #eye-container { width: 120px; height: 120px; border: 2px solid #f00; border-radius: 50%; display: none; align-items: center; justify-content: center; cursor: pointer; animation: pulse 1.5s infinite; }
-        #pupil { width: 40px; height: 40px; background: #f00; border-radius: 50%; }
-        button { background: #f00; color: #000; border: none; padding: 20px 40px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
-        .hint { font-size: 10px; color: #fff; margin-top: 15px; display: none; letter-spacing: 1px; }
-        .author { position: fixed; bottom: 30px; font-size: 10px; opacity: 0.5; letter-spacing: 2px; color: #f00; }
-        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0px #f00; } 50% { transform: scale(1.1); box-shadow: 0 0 20px #f00; } 100% { transform: scale(1); } }
-        .glitch-flash { animation: shake 0.1s infinite; background: #fff !important; }
-        @keyframes shake { 0% { transform: translate(2px,2px); } 50% { transform: translate(-2px,-2px); } 100% { transform: translate(0); } }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="main-ui">
-        <!-- ГЛАВНАЯ КНОПКА -->
-        <div id="start-box">
-            <h1 style="letter-spacing: 8px;">ОТКЛИК</h1>
-            <p style="font-size: 10px; opacity: 0.6; margin-bottom: 30px;">СИСТЕМА КОНТРОЛЯ</p>
-            <button onclick="launchSequence()">ЗАПУСТИТЬ</button>
-        </div>
-
-        <!-- ЛОГИ ВЗЛОМА -->
-        <div id="log-screen"></div>
-
-        <!-- ИНТЕРАКТИВНЫЙ ГЛАЗ -->
-        <div id="eye-container" onclick="finalAction()">
-            <div id="pupil"></div>
-        </div>
-        <p id="system-hint" class="hint">СИНХРОНИЗАЦИЯ: НАЖМИ НА ЗРАЧОК</p>
+    <div id="app">
+        <div id="console"></div>
+        <button id="action-btn">ВОЙТИ В СИСТЕМУ</button>
     </div>
-
-    <div class="author">СОЗДАТЕЛЬ: АРТЁМ КАРАПЕТЯН</div>
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
-        let audio;
-
-        function playBeep(f, d, v) {
-            try {
-                if(!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
-                let o = audio.createOscillator(); let g = audio.createGain();
-                o.connect(g); g.connect(audio.destination);
-                o.frequency.value = f; g.gain.value = v;
-                o.start(); o.stop(audio.currentTime + d);
-            } catch(e) {}
-        }
-
-        function launchSequence() {
-            document.getElementById('start-box').style.display = 'none';
-            const log = document.getElementById('log-screen');
-            log.style.display = 'block';
-            playBeep(300, 0.1, 0.1);
-            
-            const data = [
-                "> ПРОВЕРКА СОЕДИНЕНИЯ...", "> ДОСТУП В ТЕЛЕГРАМ: ОК", "> СКАНЕР СЕТЧАТКИ: ВКЛЮЧЕН",
-                "> АВТОР: АРТЁМ КАРАПЕТЯН", "> ОБЪЕКТ ЗАФИКСИРОВАН", "> ЗАГРУЗКА ВИЗУАЛЬНОГО ЯДРА..."
-            ];
-
-            let i = 0;
-            let timer = setInterval(() => {
-                if(i < data.length) {
-                    log.innerHTML += data[i] + "<br>";
-                    playBeep(150, 0.05, 0.05);
-                    i++;
-                } else {
-                    clearInterval(timer);
-                    setTimeout(() => {
-                        log.style.display = 'none';
-                        document.getElementById('eye-container').style.display = 'flex';
-                        document.getElementById('system-hint').style.display = 'block';
-                    }, 1000);
-                }
-            }, 700);
-        }
-
-        function finalAction() {
-            playBeep(500, 0.2, 0.2);
-            tg.HapticFeedback.notificationOccurred('warning');
-            document.getElementById('eye-container').style.animation = "shake 0.1s infinite";
-            document.getElementById('system-hint').innerText = "ВНИМАНИЕ: КРИТИЧЕСКАЯ ОШИБКА";
-
-            setTimeout(() => {
-                document.body.classList.add('glitch-flash');
-                tg.HapticFeedback.notificationOccurred('error');
-                playBeep(60, 1, 0.5);
-                setTimeout(() => {
-                    document.body.style.background = '#000';
-                    document.body.innerHTML = `
-                        <div style="display:flex;height:100vh;flex-direction:column;align-items:center;justify-content:center;color:red;">
-                            <h1 style="font-size:35px;">ОТКЛИК ЗАВЕРШЕН</h1>
-                            <p>ОБЪЕКТ ПОД НАБЛЮДЕНИЕМ</p>
-                            <p style="margin-top:100px; font-size:10px; opacity:0.4;">СОЗДАТЕЛЬ: АРТЁМ КАРАПЕТЯН</p>
-                        </div>`;
-                }, 200);
-            }, 2500);
-        }
-    </script>
+    <div id="jumpscare">
+        <img id="scare-img" src="">
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
+body { margin: 0; background: #000; color: #f00; font-family: monospace; overflow: hidden; }
+#app { height: 100vh; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; }
+#console { flex-grow: 1; font-size: 16px; overflow-y: auto; text-shadow: 0 0 8px #f00; }
+.line { margin-bottom: 12px; line-height: 1.2; }
+.glitch { animation: flash 0.1s infinite; font-weight: bold; text-transform: uppercase; }
+@keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+button { background: #200; border: 2px solid #f00; color: #f00; padding: 20px; font-weight: bold; cursor: pointer; }
+#jumpscare { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; display: none; }
+#jumpscare img { width: 100%; height: 100%; object-fit: cover; }
+const tg = window.Telegram.WebApp;
+const consoleBox = document.getElementById('console');
+const btn = document.getElementById('action-btn');
+
+// Настройки (замени ссылки на свои, если хочешь)
+const SOUND_URL = 'https://www.myinstants.com';
+const IMAGE_URL = 'https://files.catbox.moe'; 
+const sound = new Audio(SOUND_URL);
+
+tg.ready();
+tg.expand();
+
+function print(text, isGlitch = false) {
+    const p = document.createElement('div');
+    p.className = isGlitch ? 'line glitch' : 'line';
+    p.innerText = '> ' + text;
+    consoleBox.appendChild(p);
+    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+}
+
+btn.onclick = () => {
+    btn.style.display = 'none';
+    sound.load();
+
+    // ТВОЙ СЦЕНАРИЙ (Текст, задержка)
+    setTimeout(() => print("ПОДКЛЮЧЕНИЕ К УЗЛУ 06..."), 500);
+    setTimeout(() => print("ОШИБКА: СЕНСОРЫ ДВИЖЕНИЯ АКТИВИРОВАНЫ"), 2000);
+    setTimeout(() => print("ОНО ПРЯМО ЗА ТОБОЙ", true), 4000);
+
+    // ФИНАЛ
+    setTimeout(() => {
+        document.getElementById('scare-img').src = IMAGE_URL;
+        document.getElementById('jumpscare').style.display = 'flex';
+        sound.play();
+        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+        
+        setTimeout(() => { tg.close(); }, 2000);
+    }, 5500);
+};
