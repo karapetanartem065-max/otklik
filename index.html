@@ -6,67 +6,62 @@
     <title>ОТКЛИК</title>
     <script src="https://telegram.org"></script>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; color: #f00; font-family: monospace; height: 100vh; width: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        #app { width: 90%; text-align: center; }
-        h1 { font-size: 30px; letter-spacing: 5px; margin-bottom: 10px; text-shadow: 0 0 10px #f00; }
+        body, html { margin: 0; padding: 0; background: #000; color: #f00; font-family: monospace; height: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center; text-align: center; }
+        #app { width: 90%; max-width: 400px; }
+        h1 { font-size: 30px; letter-spacing: 5px; margin: 0 0 10px 0; text-shadow: 0 0 10px #f00; }
         input { background: #000; border: 1px solid #f00; color: #f00; padding: 15px; width: 80%; margin: 20px 0; outline: none; font-size: 16px; text-align: center; }
-        button { background: #f00; color: #000; border: none; padding: 15px 40px; font-weight: bold; cursor: pointer; text-transform: uppercase; width: 80%; letter-spacing: 2px; }
-        .msg { border-left: 2px solid #f00; padding: 10px; margin: 15px auto; text-align: left; width: 90%; background: rgba(255,0,0,0.1); font-size: 14px; }
-        .author { position: fixed; bottom: 30px; width: 100%; text-align: center; font-size: 10px; opacity: 0.5; letter-spacing: 2px; color: #f00; }
+        button { background: #f00; color: #000; border: none; padding: 15px 40px; font-weight: bold; cursor: pointer; text-transform: uppercase; width: 80%; }
+        .msg { border-left: 2px solid #f00; padding: 10px; margin: 15px 0; text-align: left; background: rgba(255,0,0,0.1); font-size: 14px; }
+        .author { position: fixed; bottom: 30px; width: 100%; text-align: center; font-size: 10px; opacity: 0.4; letter-spacing: 2px; }
     </style>
 </head>
 <body>
     <div id="app">
-        <div id="content">
+        <div id="scr">
             <h1>ОТКЛИК</h1>
             <p style="font-size: 10px; opacity: 0.6;">СИСТЕМА ИДЕНТИФИКАЦИИ</p>
-            <input type="text" id="u-name" placeholder="ВВЕДИТЕ ИМЯ..." autocomplete="off">
+            <input type="text" id="un" placeholder="ИМЯ ОБЪЕКТА..." autocomplete="off">
             <br>
-            <button onclick="start()">ВОЙТИ</button>
+            <button onclick="go()">ВОЙТИ</button>
         </div>
     </div>
     <div class="author">СОЗДАТЕЛЬ: АРТЁМ КАРАПЕТЯН</div>
 
     <script>
         const tg = window.Telegram.WebApp;
+        tg.ready();
         tg.expand();
         let ac;
-
-        function s(f, d) {
-            if(!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
-            let o = ac.createOscillator(); let g = ac.createGain();
-            o.connect(g); g.connect(ac.destination);
-            o.frequency.value = f; g.gain.value = 0.1;
-            o.start(); o.stop(ac.currentTime + d);
+        function s(f) {
+            try {
+                if(!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+                let o = ac.createOscillator(); let g = ac.createGain();
+                o.connect(g); g.connect(ac.destination);
+                o.frequency.value = f; g.gain.value = 0.05;
+                o.start(); o.stop(ac.currentTime + 0.1);
+            } catch(e) {}
         }
-
-        function start() {
-            let n = document.getElementById('u-name').value || "ОБЪЕКТ";
-            s(400, 0.1);
-            tg.HapticFeedback.impactOccurred('medium');
-            let box = document.getElementById('content');
-            box.innerHTML = '<p style="font-size:12px; color:white;">УСТАНОВКА СОЕДИНЕНИЯ...</p>';
-            setTimeout(() => { addMsg("СИСТЕМА: Объект " + n.toUpperCase() + " обнаружен."); s(200, 0.1); }, 1500);
-            setTimeout(() => { addMsg("НЕИЗВЕСТНЫЙ: Я вижу тебя через экран."); s(200, 0.1); }, 3500);
-            setTimeout(() => { addMsg("НЕИЗВЕСТНЫЙ: Обернись прямо сейчас."); s(300, 0.2); tg.HapticFeedback.notificationOccurred('warning'); }, 5500);
+        function go() {
+            let n = document.getElementById('un').value || "ОБЪЕКТ";
+            s(400); tg.HapticFeedback.impactOccurred('medium');
+            let box = document.getElementById('scr');
+            box.innerHTML = '<p style="color:white; font-size:12px;">ПОДКЛЮЧЕНИЕ К КАНАЛУ...</p>';
+            setTimeout(() => { addMsg("СИСТЕМА: Объект " + n.toUpperCase() + " найден."); s(200); tg.HapticFeedback.impactOccurred('light'); }, 1500);
+            setTimeout(() => { addMsg("НЕИЗВЕСТНЫЙ: Я тебя вижу через камеру."); s(200); tg.HapticFeedback.impactOccurred('medium'); }, 3500);
+            setTimeout(() => { addMsg("НЕИЗВЕСТНЫЙ: Обернись прямо сейчас."); s(300); tg.HapticFeedback.notificationOccurred('warning'); }, 5500);
             setTimeout(() => {
                 tg.HapticFeedback.notificationOccurred('error');
-                s(60, 0.5);
                 document.body.style.background = 'white';
                 setTimeout(() => {
                     document.body.style.background = 'black';
-                    document.getElementById('app').innerHTML = `<h1 style="font-size:35px;">СВЯЗЬ ПРЕРВАНА</h1><p>ОБЪЕКТ ${n.toUpperCase()} УДАЛЕН</p><p style="margin-top:100px; font-size:10px; opacity:0.3;">СОЗДАТЕЛЬ: АРТЁМ КАРАПЕТЯН</p>`;
+                    document.getElementById('app').innerHTML = `<h1 style="font-size:30px;">СВЯЗЬ ПРЕРВАНА</h1><p>ОБЪЕКТ УДАЛЕН</p><p style="margin-top:80px; font-size:10px; opacity:0.3;">СОЗДАТЕЛЬ: АРТЁМ КАРАПЕТЯН</p>`;
                 }, 150);
             }, 8500);
         }
-
         function addMsg(t) {
-            let b = document.getElementById('content');
             let d = document.createElement('div');
-            d.className = 'msg';
-            d.innerText = t;
-            b.appendChild(d);
-            tg.HapticFeedback.impactOccurred('light');
+            d.className = 'msg'; d.innerText = t;
+            document.getElementById('scr').appendChild(d);
         }
     </script>
 </body>
