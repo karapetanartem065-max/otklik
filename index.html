@@ -1,10 +1,20 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org"></script>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body { margin: 0; background: #000; color: #f00; font-family: monospace; overflow: hidden; }
+        #app { height: 100vh; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; }
+        #console { flex-grow: 1; font-size: 16px; overflow-y: auto; text-shadow: 0 0 8px #f00; }
+        .line { margin-bottom: 12px; line-height: 1.2; }
+        .glitch { animation: flash 0.1s infinite; font-weight: bold; text-transform: uppercase; }
+        @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
+        button { background: #200; border: 2px solid #f00; color: #f00; padding: 20px; font-weight: bold; cursor: pointer; }
+        #jumpscare { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; display: none; }
+        #jumpscare img { width: 100%; height: 100%; object-fit: cover; }
+    </style>
 </head>
 <body>
     <div id="app">
@@ -12,56 +22,38 @@
         <button id="action-btn">ВОЙТИ В СИСТЕМУ</button>
     </div>
     <div id="jumpscare">
-        <img id="scare-img" src="">
+        <img id="scare-img" src="https://files.catbox.moe">
     </div>
-    <script src="script.js"></script>
+<script>
+    const tg = window.Telegram.WebApp;
+    const consoleBox = document.getElementById('console');
+    const btn = document.getElementById('action-btn');
+    const sound = new Audio('https://www.myinstants.com');
+
+    tg.ready();
+    tg.expand();
+
+    function print(text, isGlitch = false) {
+        const p = document.createElement('div');
+        p.className = isGlitch ? 'line glitch' : 'line';
+        p.innerText = '> ' + text;
+        consoleBox.appendChild(p);
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+    }
+    btn.onclick = () => {
+        btn.style.display = 'none';
+        sound.load();
+        setTimeout(() => print("ПОДКЛЮЧЕНИЕ К УЗЛУ 06..."), 500);
+        setTimeout(() => print("ОШИБКА: СЕНСОРЫ ДВИЖЕНИЯ АКТИВИРОВАНЫ"), 2000);
+        setTimeout(() => print("ОНО ПРЯМО ЗА ТОБОЙ", true), 4000);
+
+        setTimeout(() => {
+            document.getElementById('jumpscare').style.display = 'flex';
+            sound.play();
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+            setTimeout(() => { tg.close(); }, 2500);
+        }, 5500);
+    };
+</script>
 </body>
 </html>
-body { margin: 0; background: #000; color: #f00; font-family: monospace; overflow: hidden; }
-#app { height: 100vh; display: flex; flex-direction: column; padding: 20px; box-sizing: border-box; }
-#console { flex-grow: 1; font-size: 16px; overflow-y: auto; text-shadow: 0 0 8px #f00; }
-.line { margin-bottom: 12px; line-height: 1.2; }
-.glitch { animation: flash 0.1s infinite; font-weight: bold; text-transform: uppercase; }
-@keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.2; } 100% { opacity: 1; } }
-button { background: #200; border: 2px solid #f00; color: #f00; padding: 20px; font-weight: bold; cursor: pointer; }
-#jumpscare { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1000; display: none; }
-#jumpscare img { width: 100%; height: 100%; object-fit: cover; }
-const tg = window.Telegram.WebApp;
-const consoleBox = document.getElementById('console');
-const btn = document.getElementById('action-btn');
-
-// Настройки (замени ссылки на свои, если хочешь)
-const SOUND_URL = 'https://www.myinstants.com';
-const IMAGE_URL = 'https://files.catbox.moe'; 
-const sound = new Audio(SOUND_URL);
-
-tg.ready();
-tg.expand();
-
-function print(text, isGlitch = false) {
-    const p = document.createElement('div');
-    p.className = isGlitch ? 'line glitch' : 'line';
-    p.innerText = '> ' + text;
-    consoleBox.appendChild(p);
-    if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-}
-
-btn.onclick = () => {
-    btn.style.display = 'none';
-    sound.load();
-
-    // ТВОЙ СЦЕНАРИЙ (Текст, задержка)
-    setTimeout(() => print("ПОДКЛЮЧЕНИЕ К УЗЛУ 06..."), 500);
-    setTimeout(() => print("ОШИБКА: СЕНСОРЫ ДВИЖЕНИЯ АКТИВИРОВАНЫ"), 2000);
-    setTimeout(() => print("ОНО ПРЯМО ЗА ТОБОЙ", true), 4000);
-
-    // ФИНАЛ
-    setTimeout(() => {
-        document.getElementById('scare-img').src = IMAGE_URL;
-        document.getElementById('jumpscare').style.display = 'flex';
-        sound.play();
-        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-        
-        setTimeout(() => { tg.close(); }, 2000);
-    }, 5500);
-};
