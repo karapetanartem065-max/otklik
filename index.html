@@ -1,67 +1,58 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ОТКЛИК</title>
-    <script src="https://telegram.org"></script>
     <style>
-        body, html { margin: 0; padding: 0; background: #000; color: #f00; font-family: monospace; height: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center; text-align: center; }
-        #app { width: 90%; max-width: 400px; }
-        h1 { font-size: 30px; letter-spacing: 5px; margin: 0 0 10px 0; text-shadow: 0 0 10px #f00; }
-        input { background: #000; border: 1px solid #f00; color: #f00; padding: 15px; width: 80%; margin: 20px 0; outline: none; font-size: 16px; text-align: center; }
-        button { background: #f00; color: #000; border: none; padding: 15px 40px; font-weight: bold; cursor: pointer; text-transform: uppercase; width: 80%; }
-        .msg { border-left: 2px solid #f00; padding: 10px; margin: 15px 0; text-align: left; background: rgba(255,0,0,0.1); font-size: 14px; }
-        .author { position: fixed; bottom: 30px; width: 100%; text-align: center; font-size: 10px; opacity: 0.4; letter-spacing: 2px; }
+        body { background: #000; color: #f00; font-family: monospace; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; text-align: center; }
+        #app { width: 90%; }
+        input { background: #000; border: 1px solid #f00; color: #f00; padding: 15px; width: 80%; margin: 20px 0; outline: none; }
+        button { background: #f00; color: #000; border: none; padding: 15px 40px; font-weight: bold; cursor: pointer; }
+        .m { border-left: 2px solid #f00; padding: 10px; margin: 10px 0; text-align: left; background: #110000; }
+        .author { position: fixed; bottom: 20px; font-size: 10px; opacity: 0.5; width: 100%; left: 0; }
     </style>
 </head>
 <body>
     <div id="app">
-        <div id="scr">
+        <div id="box">
             <h1>ОТКЛИК</h1>
-            <p style="font-size: 10px; opacity: 0.6;">СИСТЕМА ИДЕНТИФИКАЦИИ</p>
-            <input type="text" id="un" placeholder="ИМЯ ОБЪЕКТА..." autocomplete="off">
+            <input type="text" id="name" placeholder="ИМЯ...">
             <br>
-            <button onclick="go()">ВОЙТИ</button>
+            <button onclick="start()">ВОЙТИ</button>
         </div>
     </div>
     <div class="author">СОЗДАТЕЛЬ: АРТЁМ КАРАПЕТЯН</div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
-        let ac;
-        function s(f) {
-            try {
-                if(!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
-                let o = ac.createOscillator(); let g = ac.createGain();
-                o.connect(g); g.connect(ac.destination);
-                o.frequency.value = f; g.gain.value = 0.05;
-                o.start(); o.stop(ac.currentTime + 0.1);
-            } catch(e) {}
-        }
-        function go() {
-            let n = document.getElementById('un').value || "ОБЪЕКТ";
-            s(400); tg.HapticFeedback.impactOccurred('medium');
-            let box = document.getElementById('scr');
-            box.innerHTML = '<p style="color:white; font-size:12px;">ПОДКЛЮЧЕНИЕ К КАНАЛУ...</p>';
-            setTimeout(() => { addMsg("СИСТЕМА: Объект " + n.toUpperCase() + " найден."); s(200); tg.HapticFeedback.impactOccurred('light'); }, 1500);
-            setTimeout(() => { addMsg("НЕИЗВЕСТНЫЙ: Я тебя вижу через камеру."); s(200); tg.HapticFeedback.impactOccurred('medium'); }, 3500);
-            setTimeout(() => { addMsg("НЕИЗВЕСТНЫЙ: Обернись прямо сейчас."); s(300); tg.HapticFeedback.notificationOccurred('warning'); }, 5500);
-            setTimeout(() => {
-                tg.HapticFeedback.notificationOccurred('error');
-                document.body.style.background = 'white';
-                setTimeout(() => {
-                    document.body.style.background = 'black';
-                    document.getElementById('app').innerHTML = `<h1 style="font-size:30px;">СВЯЗЬ ПРЕРВАНА</h1><p>ОБЪЕКТ УДАЛЕН</p><p style="margin-top:80px; font-size:10px; opacity:0.3;">СОЗДАТЕЛЬ: АРТЁМ КАРАПЕТЯН</p>`;
-                }, 150);
-            }, 8500);
-        }
-        function addMsg(t) {
-            let d = document.createElement('div');
-            d.className = 'msg'; d.innerText = t;
-            document.getElementById('scr').appendChild(d);
+        function start() {
+            var n = document.getElementById('name').value || "ОБЪЕКТ";
+            var b = document.getElementById('box');
+            
+            // Сразу меняем текст, чтобы увидеть, что кнопка работает
+            b.innerHTML = '<p>ПОДКЛЮЧЕНИЕ...</p>';
+            
+            setTimeout(function() { 
+                var d = document.createElement('div');
+                d.className = 'm';
+                d.innerText = "СИСТЕМА: Объект " + n.toUpperCase() + " найден.";
+                b.appendChild(d);
+            }, 1000);
+
+            setTimeout(function() { 
+                var d = document.createElement('div');
+                d.className = 'm';
+                d.innerText = "НЕИЗВЕСТНЫЙ: Я тебя вижу.";
+                b.appendChild(d);
+            }, 3000);
+
+            setTimeout(function() {
+                document.body.style.background = "white";
+                setTimeout(function(){ 
+                    document.body.style.background = "black";
+                    document.getElementById('app').innerHTML = "<h1>СВЯЗЬ ПРЕРВАНА</h1><p>ОБЪЕКТ УДАЛЕН</p>";
+                }, 100);
+            }, 6000);
         }
     </script>
 </body>
