@@ -6,84 +6,67 @@
     <title>ОТКЛИК</title>
     <script src="https://telegram.org"></script>
     <style>
-        :root { --red: #ff0000; --bg: #050505; }
-        body, html { margin: 0; padding: 0; background: var(--bg); color: var(--red); font-family: 'Courier New', monospace; overflow: hidden; height: 100%; }
-        .noise { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url(https://media.giphy.com); opacity: 0.05; pointer-events: none; z-index: 10; }
-        #container { display: flex; flex-direction: column; height: 100vh; padding: 20px; justify-content: center; align-items: center; text-align: center; }
-        .author { position: absolute; bottom: 20px; font-size: 10px; opacity: 0.4; letter-spacing: 2px; text-transform: uppercase; }
-        h1 { font-size: 28px; text-shadow: 0 0 15px var(--red); letter-spacing: 5px; }
-        input { background: transparent; border: 1px solid var(--red); color: var(--red); padding: 12px; text-align: center; outline: none; width: 80%; margin-bottom: 15px; font-size: 16px; }
-        button { background: var(--red); color: black; border: none; padding: 15px 30px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
-        #scanner { display: none; width: 100%; flex-direction: column; align-items: center; }
-        #freq-range { width: 85%; -webkit-appearance: none; background: #200; height: 4px; margin: 30px 0; outline: none; }
-        #freq-range::-webkit-slider-thumb { -webkit-appearance: none; width: 25px; height: 25px; background: var(--red); border-radius: 50%; cursor: pointer; box-shadow: 0 0 15px var(--red); }
-        #camera-feed { width: 280px; height: 180px; border: 1px solid #400; background: #000; position: relative; overflow: hidden; display: flex; justify-content: center; align-items: center; box-shadow: inset 0 0 50px #f003; }
-        #shadow-man { width: 60px; opacity: 0; transition: 0.2s; filter: brightness(0) blur(4px); }
-        .hidden { display: none !important; }
-        @keyframes panic { 0% { transform: translate(0); } 25% { transform: translate(-5px, 5px); } 75% { transform: translate(5px, -5px); } 100% { transform: translate(0); } }
-        .panic-mode { animation: panic 0.05s infinite; background: white !important; }
+        body, html { margin: 0; padding: 0; background: #000; color: #f00; font-family: monospace; height: 100vh; width: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        #app { width: 90%; text-align: center; }
+        h1 { font-size: 30px; letter-spacing: 5px; margin-bottom: 10px; text-shadow: 0 0 10px #f00; }
+        input { background: #000; border: 1px solid #f00; color: #f00; padding: 15px; width: 80%; margin: 20px 0; outline: none; font-size: 16px; text-align: center; }
+        button { background: #f00; color: #000; border: none; padding: 15px 40px; font-weight: bold; cursor: pointer; text-transform: uppercase; width: 80%; letter-spacing: 2px; }
+        .msg { border-left: 2px solid #f00; padding: 10px; margin: 15px auto; text-align: left; width: 90%; background: rgba(255,0,0,0.1); font-size: 14px; }
+        .author { position: fixed; bottom: 30px; width: 100%; text-align: center; font-size: 10px; opacity: 0.5; letter-spacing: 2px; color: #f00; }
     </style>
 </head>
 <body>
-    <div class="noise"></div>
-    <div id="container">
-        <div id="intro">
+    <div id="app">
+        <div id="content">
             <h1>ОТКЛИК</h1>
-            <p style="font-size: 10px; margin-bottom: 30px; opacity: 0.6;">СИСТЕМА ПОИСКА ОБЪЕКТОВ</p>
-            <input type="text" id="player-name" placeholder="ВВЕДИТЕ ВАШЕ ИМЯ">
-            <button onclick="startApp()">ИДЕНТИФИКАЦИЯ</button>
+            <p style="font-size: 10px; opacity: 0.6;">СИСТЕМА ИДЕНТИФИКАЦИИ</p>
+            <input type="text" id="u-name" placeholder="ВВЕДИТЕ ИМЯ..." autocomplete="off">
+            <br>
+            <button onclick="start()">ВОЙТИ</button>
         </div>
-        <div id="scanner" class="hidden">
-            <p id="status" style="height: 40px;">НАСТРОЙКА ЧАСТОТЫ...</p>
-            <div id="camera-feed">
-                <img id="shadow-man" src="https://i.imgur.com" alt="Тень">
-            </div>
-            <input type="range" id="freq-range" min="0" max="100" value="0">
-            <p style="font-size: 9px; opacity: 0.5;">УДЕРЖИВАЙТЕ СИГНАЛ НА 77%</p>
-        </div>
-        <div class="author">СОЗДАТЕЛЬ: АРТЁМ КАРАПЕТЯН</div>
     </div>
+    <div class="author">СОЗДАТЕЛЬ: АРТЁМ КАРАПЕТЯН</div>
+
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        function startApp() {
-            const name = document.getElementById('player-name').value;
-            if(!name) { tg.showAlert("ОБЪЕКТ ДОЛЖЕН ИМЕТЬ ИМЯ."); return; }
-            document.getElementById('intro').classList.add('hidden');
-            document.getElementById('scanner').classList.remove('hidden');
-            initScanner(name);
+        let ac;
+
+        function s(f, d) {
+            if(!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+            let o = ac.createOscillator(); let g = ac.createGain();
+            o.connect(g); g.connect(ac.destination);
+            o.frequency.value = f; g.gain.value = 0.1;
+            o.start(); o.stop(ac.currentTime + d);
         }
-        function initScanner(name) {
-            const slider = document.getElementById('freq-range');
-            const shadow = document.getElementById('shadow-man');
-            const status = document.getElementById('status');
-            slider.addEventListener('input', () => {
-                let val = slider.value;
-                let diff = Math.abs(val - 77);
-                let opacity = 1 - (diff / 15); 
-                shadow.style.opacity = opacity > 0 ? opacity : 0;
-                shadow.style.transform = `scale(${1.5 - (diff/50)})`;
-                if(diff < 2) {
-                    status.innerText = `${name.toUpperCase()}, Я ТЕБЯ ВИЖУ.`;
-                    status.style.color = "white";
-                    tg.HapticFeedback.impactOccurred('medium');
-                    if(val == 77) { setTimeout(triggerFinal, 800); }
-                } else {
-                    status.innerText = "ПОИСК СИГНАЛА...";
-                    status.style.color = "red";
-                }
-            });
-        }
-        function triggerFinal() {
-            tg.HapticFeedback.notificationOccurred('error');
-            document.body.classList.add('panic-mode');
+
+        function start() {
+            let n = document.getElementById('u-name').value || "ОБЪЕКТ";
+            s(400, 0.1);
+            tg.HapticFeedback.impactOccurred('medium');
+            let box = document.getElementById('content');
+            box.innerHTML = '<p style="font-size:12px; color:white;">УСТАНОВКА СОЕДИНЕНИЯ...</p>';
+            setTimeout(() => { addMsg("СИСТЕМА: Объект " + n.toUpperCase() + " обнаружен."); s(200, 0.1); }, 1500);
+            setTimeout(() => { addMsg("НЕИЗВЕСТНЫЙ: Я вижу тебя через экран."); s(200, 0.1); }, 3500);
+            setTimeout(() => { addMsg("НЕИЗВЕСТНЫЙ: Обернись прямо сейчас."); s(300, 0.2); tg.HapticFeedback.notificationOccurred('warning'); }, 5500);
             setTimeout(() => {
-                document.body.innerHTML = `<div style="display:flex;height:100vh;align-items:center;justify-content:center;background:black;color:red;text-align:center;flex-direction:column;padding:20px;">
-                    <h1 style="font-size:40px;">СВЯЗЬ ПРЕРВАНА</h1>
-                    <p style="letter-spacing:3px;">ОБЪЕКТ ПОГЛОЩЕН</p>
-                    <p style="font-size:10px;margin-top:100px;opacity:0.3;">СОЗДАТЕЛЬ: АРТЁМ КАРАПЕТЯН</p>
-                </div>`;
-            }, 150);
+                tg.HapticFeedback.notificationOccurred('error');
+                s(60, 0.5);
+                document.body.style.background = 'white';
+                setTimeout(() => {
+                    document.body.style.background = 'black';
+                    document.getElementById('app').innerHTML = `<h1 style="font-size:35px;">СВЯЗЬ ПРЕРВАНА</h1><p>ОБЪЕКТ ${n.toUpperCase()} УДАЛЕН</p><p style="margin-top:100px; font-size:10px; opacity:0.3;">СОЗДАТЕЛЬ: АРТЁМ КАРАПЕТЯН</p>`;
+                }, 150);
+            }, 8500);
+        }
+
+        function addMsg(t) {
+            let b = document.getElementById('content');
+            let d = document.createElement('div');
+            d.className = 'msg';
+            d.innerText = t;
+            b.appendChild(d);
+            tg.HapticFeedback.impactOccurred('light');
         }
     </script>
 </body>
