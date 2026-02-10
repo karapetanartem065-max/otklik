@@ -2,8 +2,8 @@ const tg = window.Telegram.WebApp;
 const consoleBox = document.getElementById('console');
 const btn = document.getElementById('action-btn');
 
-// Звук скримера
-const sound = new Audio('https://www.myinstants.com');
+// Оставляем звук, но делаем его "тихим" при загрузке, чтобы не вешал систему
+let sound = new Audio('https://www.myinstants.com');
 
 tg.ready();
 tg.expand();
@@ -13,25 +13,32 @@ function print(text, isGlitch = false) {
     p.className = isGlitch ? 'line glitch' : 'line';
     p.innerText = '> ' + text;
     consoleBox.appendChild(p);
-    // Вибрация телефона при каждой новой строчке
+    // Вибрация сработает в любом случае!
     if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
 }
 
 btn.onclick = () => {
     btn.style.display = 'none';
-    sound.load(); // Предзагрузка звука
+    
+    // Пытаемся запустить звук, но если не выйдет - плевать, идем дальше
+    sound.play().catch(e => console.log("Sound blocked or loading"));
 
-    // Сценарий (можешь менять тексты тут на свои)
-    setTimeout(() => print("ПОДКЛЮЧЕНИЕ К УЗЛУ 06..."), 500);
-    setTimeout(() => print("ОШИБКА: СЕНСОРЫ ДВИЖЕНИЯ АКТИВИРОВАНЫ"), 2000);
-    setTimeout(() => print("ОНО ПРЯМО ЗА ТОБОЙ", true), 4000);
+    // Твой сценарий запускается МГНОВЕННО
+    print("ИНИЦИАЛИЗАЦИЯ ПРОТОКОЛА...");
+    
+    setTimeout(() => print("ПОДКЛЮЧЕНИЕ К УЗЛУ 06..."), 1000);
+    setTimeout(() => print("ОШИБКА: ОБНАРУЖЕНО ПРИСУТСТВИЕ", true), 2500);
+    setTimeout(() => print("ОНО УЖЕ ЗДЕСЬ", true), 4000);
 
-    // ФИНАЛ - СКРИМЕР
+    // ФИНАЛ: Скример и вибрация
     setTimeout(() => {
         document.getElementById('jumpscare').style.display = 'flex';
-        sound.play();
+        // Если звук успел прогрузиться - он заорет тут
+        sound.play().catch(() => {}); 
+        
         if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-        // Закрываем приложение через 2.5 секунды после испуга
+        
+        // Закрываем через 2.5 сек
         setTimeout(() => { tg.close(); }, 2500);
     }, 5500);
 };
