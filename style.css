@@ -1,0 +1,65 @@
+body { 
+    margin: 0; 
+    background: #000; 
+    color: #f00; 
+    font-family: monospace; 
+    overflow: hidden; 
+}
+
+#app { 
+    height: 100vh; 
+    display: flex; 
+    flex-direction: column; 
+    padding: 20px; 
+    box-sizing: border-box; 
+}
+
+#console { 
+    flex-grow: 1; 
+    font-size: 16px; 
+    overflow-y: auto; 
+    text-shadow: 0 0 8px #f00; 
+}
+
+.line { 
+    margin-bottom: 12px; 
+    line-height: 1.2; 
+}
+
+.glitch { 
+    animation: flash 0.1s infinite; 
+    font-weight: bold; 
+    text-transform: uppercase; 
+}
+
+@keyframes flash { 
+    0% { opacity: 1; } 
+    50% { opacity: 0.2; } 
+    100% { opacity: 1; } 
+}
+
+button { 
+    background: #200; 
+    border: 2px solid #f00; 
+    color: #f00; 
+    padding: 20px; 
+    font-weight: bold; 
+    cursor: pointer; 
+}
+
+#jumpscare { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: #000; 
+    z-index: 1000; 
+    display: none; 
+}
+
+#jumpscare img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+}
