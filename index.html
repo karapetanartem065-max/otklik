@@ -1,58 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ОТКЛИК</title>
+    <script src="https://telegram.org"></script>
     <style>
-        body { background: #000; color: #f00; font-family: monospace; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; text-align: center; }
-        #app { width: 90%; }
-        input { background: #000; border: 1px solid #f00; color: #f00; padding: 15px; width: 80%; margin: 20px 0; outline: none; }
-        button { background: #f00; color: #000; border: none; padding: 15px 40px; font-weight: bold; cursor: pointer; }
-        .m { border-left: 2px solid #f00; padding: 10px; margin: 10px 0; text-align: left; background: #110000; }
-        .author { position: fixed; bottom: 20px; font-size: 10px; opacity: 0.5; width: 100%; left: 0; }
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; background: #000; color: #f00; font-family: 'Courier New', monospace; height: 100vh; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
+        #log-screen { font-size: 11px; text-align: left; width: 85%; height: 150px; overflow: hidden; color: #0f0; margin-bottom: 20px; display: none; border: 1px solid #030; padding: 10px; }
+        #eye-container { width: 120px; height: 120px; border: 2px solid #f00; border-radius: 50%; display: none; align-items: center; justify-content: center; cursor: pointer; animation: pulse 1.5s infinite; }
+        #pupil { width: 40px; height: 40px; background: #f00; border-radius: 50%; }
+        button { background: #f00; color: #000; border: none; padding: 20px 40px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
+        .hint { font-size: 10px; color: #fff; margin-top: 15px; display: none; letter-spacing: 1px; }
+        .author { position: fixed; bottom: 30px; font-size: 10px; opacity: 0.5; letter-spacing: 2px; color: #f00; }
+        @keyframes pulse { 0% { transform: scale(1); box-shadow: 0 0 0px #f00; } 50% { transform: scale(1.1); box-shadow: 0 0 20px #f00; } 100% { transform: scale(1); } }
+        .glitch-flash { animation: shake 0.1s infinite; background: #fff !important; }
+        @keyframes shake { 0% { transform: translate(2px,2px); } 50% { transform: translate(-2px,-2px); } 100% { transform: translate(0); } }
     </style>
 </head>
 <body>
-    <div id="app">
-        <div id="box">
-            <h1>ОТКЛИК</h1>
-            <input type="text" id="name" placeholder="ИМЯ...">
-            <br>
-            <button onclick="start()">ВОЙТИ</button>
+    <div id="main-ui">
+        <!-- ГЛАВНАЯ КНОПКА -->
+        <div id="start-box">
+            <h1 style="letter-spacing: 8px;">ОТКЛИК</h1>
+            <p style="font-size: 10px; opacity: 0.6; margin-bottom: 30px;">СИСТЕМА КОНТРОЛЯ</p>
+            <button onclick="launchSequence()">ЗАПУСТИТЬ</button>
         </div>
+
+        <!-- ЛОГИ ВЗЛОМА -->
+        <div id="log-screen"></div>
+
+        <!-- ИНТЕРАКТИВНЫЙ ГЛАЗ -->
+        <div id="eye-container" onclick="finalAction()">
+            <div id="pupil"></div>
+        </div>
+        <p id="system-hint" class="hint">СИНХРОНИЗАЦИЯ: НАЖМИ НА ЗРАЧОК</p>
     </div>
+
     <div class="author">СОЗДАТЕЛЬ: АРТЁМ КАРАПЕТЯН</div>
-
     <script>
-        function start() {
-            var n = document.getElementById('name').value || "ОБЪЕКТ";
-            var b = document.getElementById('box');
-            
-            // Сразу меняем текст, чтобы увидеть, что кнопка работает
-            b.innerHTML = '<p>ПОДКЛЮЧЕНИЕ...</p>';
-            
-            setTimeout(function() { 
-                var d = document.createElement('div');
-                d.className = 'm';
-                d.innerText = "СИСТЕМА: Объект " + n.toUpperCase() + " найден.";
-                b.appendChild(d);
-            }, 1000);
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        let audio;
 
-            setTimeout(function() { 
-                var d = document.createElement('div');
-                d.className = 'm';
-                d.innerText = "НЕИЗВЕСТНЫЙ: Я тебя вижу.";
-                b.appendChild(d);
-            }, 3000);
+        function playBeep(f, d, v) {
+            try {
+                if(!audio) audio = new (window.AudioContext || window.webkitAudioContext)();
+                let o = audio.createOscillator(); let g = audio.createGain();
+                o.connect(g); g.connect(audio.destination);
+                o.frequency.value = f; g.gain.value = v;
+                o.start(); o.stop(audio.currentTime + d);
+            } catch(e) {}
+        }
 
-            setTimeout(function() {
-                document.body.style.background = "white";
-                setTimeout(function(){ 
-                    document.body.style.background = "black";
-                    document.getElementById('app').innerHTML = "<h1>СВЯЗЬ ПРЕРВАНА</h1><p>ОБЪЕКТ УДАЛЕН</p>";
-                }, 100);
-            }, 6000);
+        function launchSequence() {
+            document.getElementById('start-box').style.display = 'none';
+            const log = document.getElementById('log-screen');
+            log.style.display = 'block';
+            playBeep(300, 0.1, 0.1);
+            
+            const data = [
+                "> ПРОВЕРКА СОЕДИНЕНИЯ...", "> ДОСТУП В ТЕЛЕГРАМ: ОК", "> СКАНЕР СЕТЧАТКИ: ВКЛЮЧЕН",
+                "> АВТОР: АРТЁМ КАРАПЕТЯН", "> ОБЪЕКТ ЗАФИКСИРОВАН", "> ЗАГРУЗКА ВИЗУАЛЬНОГО ЯДРА..."
+            ];
+
+            let i = 0;
+            let timer = setInterval(() => {
+                if(i < data.length) {
+                    log.innerHTML += data[i] + "<br>";
+                    playBeep(150, 0.05, 0.05);
+                    i++;
+                } else {
+                    clearInterval(timer);
+                    setTimeout(() => {
+                        log.style.display = 'none';
+                        document.getElementById('eye-container').style.display = 'flex';
+                        document.getElementById('system-hint').style.display = 'block';
+                    }, 1000);
+                }
+            }, 700);
+        }
+
+        function finalAction() {
+            playBeep(500, 0.2, 0.2);
+            tg.HapticFeedback.notificationOccurred('warning');
+            document.getElementById('eye-container').style.animation = "shake 0.1s infinite";
+            document.getElementById('system-hint').innerText = "ВНИМАНИЕ: КРИТИЧЕСКАЯ ОШИБКА";
+
+            setTimeout(() => {
+                document.body.classList.add('glitch-flash');
+                tg.HapticFeedback.notificationOccurred('error');
+                playBeep(60, 1, 0.5);
+                setTimeout(() => {
+                    document.body.style.background = '#000';
+                    document.body.innerHTML = `
+                        <div style="display:flex;height:100vh;flex-direction:column;align-items:center;justify-content:center;color:red;">
+                            <h1 style="font-size:35px;">ОТКЛИК ЗАВЕРШЕН</h1>
+                            <p>ОБЪЕКТ ПОД НАБЛЮДЕНИЕМ</p>
+                            <p style="margin-top:100px; font-size:10px; opacity:0.4;">СОЗДАТЕЛЬ: АРТЁМ КАРАПЕТЯН</p>
+                        </div>`;
+                }, 200);
+            }, 2500);
         }
     </script>
 </body>
